@@ -10,7 +10,7 @@ export class MessageEditComponent implements OnInit {
   @Output() messageAdded = new EventEmitter<Message>();
   @ViewChild('subjectInput', { static: true }) subjectInput: ElementRef;
   @ViewChild('messageInput', { static: true }) messageInput: ElementRef;
-  currentSender = 'Jonathan';
+  currentSender = 2;
   currentId = 2;
   constructor() { }
 
