@@ -1,23 +1,29 @@
 import { Component, OnInit } from '@angular/core';
 import { Message } from '../message.model';
-import { MOCKMESSAGES } from '../MOCKMESSAGES';
+
+import { MessageService } from '../message.service';
 @Component({
   selector: 'cms-message-list',
   templateUrl: './message-list.component.html',
   styleUrls: ['./message-list.component.css']
 })
 export class MessageListComponent implements OnInit {
-  messages: Message[] = [];
-  constructor() { }
+  messages: Message[];
+  constructor(private messageService: MessageService) {
+
+  }
 
   ngOnInit() {
-    MOCKMESSAGES.forEach((message) => {
-      this.messages.push(message);
+    this.messages = this.messageService.getMessages();
+    this.messageService.addedMessage.subscribe((message: Message) => {
+      this.messages.push(message)
+      this.messageService.getMessage(message.id)
     })
   }
 
-  addMessage(message: Message) {
-    this.messages.push(message)
+  ngOnChanges() {
+
   }
+
 
 }
