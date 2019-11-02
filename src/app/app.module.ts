@@ -1,5 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+import { Routes, RouterModule } from '@angular/router';
 
 import { AppComponent } from './app.component';
 import { HeaderComponent } from './header.component';
@@ -15,6 +16,28 @@ import { MessageItemComponent } from './messages/message-item/message-item.compo
 import { MessageListComponent } from './messages/message-list/message-list.component';
 import { MessageEditComponent } from './messages/message-edit/message-edit.component';
 import { DropdownDirective } from './directives/dropdown.directive';
+import { DocumentEditComponent } from './documents/document-edit/document-edit.component';
+import { ContactEditComponent } from './contacts/contact-edit/contact-edit.component';
+
+const cmsRoutes: Routes = [
+  { path: '', redirectTo: 'documents', pathMatch: 'full' },
+  {
+    path: 'documents', component: DocumentsComponent, children: [
+      { path: 'new', component: DocumentEditComponent },
+      { path: ':id', component: DocumentDetailComponent },
+      { path: ':id/edit', component: DocumentEditComponent }
+    ]
+  },
+  { path: 'messages', component: MessageListComponent },
+  {
+    path: 'contacts', component: ContactsComponent, children: [
+      { path: 'new', component: ContactEditComponent },
+      { path: ':id', component: ContactDetailComponent },
+      { path: ':id/edit', component: ContactEditComponent }
+    ]
+  }
+]
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -30,10 +53,13 @@ import { DropdownDirective } from './directives/dropdown.directive';
     MessageItemComponent,
     MessageListComponent,
     MessageEditComponent,
-    DropdownDirective
+    DropdownDirective,
+    DocumentEditComponent,
+    ContactEditComponent
   ],
   imports: [
-    BrowserModule
+    BrowserModule,
+    RouterModule.forRoot(cmsRoutes)
   ],
   providers: [],
   bootstrap: [AppComponent]

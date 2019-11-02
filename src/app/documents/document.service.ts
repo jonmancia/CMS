@@ -7,6 +7,7 @@ import { Document } from './document.model';
 export class DocumentService {
   documents: Document[] = [];
   @Output() selectedDocument = new EventEmitter<Document>();
+  @Output() selectedDocuments = new EventEmitter<Document[]>();
   constructor() {
     this.documents = MOCKDOCUMENTS;
   }
@@ -19,4 +20,21 @@ export class DocumentService {
     this.selectedDocument.emit(document);
   }
 
+  getDocument(id: string): Document {
+    for (let document of this.documents) {
+      if (document.id == id) {
+        return document;
+      }
+    }
+  }
+
+  deleteDocument(id: string) {
+    for (let i = 0; i < this.documents.length; i++) {
+      if (this.documents[i].id == id) {
+        this.documents.splice(i, 1);
+        this.selectedDocuments.emit(this.documents)
+        break;
+      }
+    }
+  }
 }
