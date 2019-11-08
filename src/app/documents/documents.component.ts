@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { DocumentService } from './document.service';
+import { Document } from './document.model';
 
 @Component({
   selector: 'cms-documents',

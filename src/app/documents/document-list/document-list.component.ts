@@ -19,4 +19,8 @@ export class DocumentListComponent implements OnInit {
   selectedDocument(document: Document) {
     this.documentService.onSelectDocument(document);
   }
+
+  addDocument(document: Document) {
+    this.documentService.addDocument(document);
+  }
 }
