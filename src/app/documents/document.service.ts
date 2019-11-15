@@ -3,10 +3,10 @@ import { MOCKDOCUMENTS } from './MOCKDOCUMENTS';
 import { Document } from './document.model';
 import { Subject } from 'rxjs';
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class DocumentService {
-  documents: Document[] = [];
+  private documents: Document[] = [];
   maxId: number;
   selectedDocument = new Subject<Document>();
   selectedDocuments = new Subject<Document[]>();
@@ -15,7 +15,6 @@ export class DocumentService {
   constructor() {
     this.documents = MOCKDOCUMENTS;
     this.maxId = this.getMaxId();
-
   }
 
   getMaxId(): number {
@@ -48,7 +47,7 @@ export class DocumentService {
     for (let i = 0; i < this.documents.length; i++) {
       if (this.documents[i].id == id) {
         this.documents.splice(i, 1);
-        this.selectedDocuments.next(this.documents)
+        this.selectedDocuments.next(this.documents);
         break;
       }
     }

@@ -1,7 +1,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-
+import { FormsModule } from '@angular/forms';
 import { AppComponent } from './app.component';
 import { HeaderComponent } from './header.component';
 import { ContactsComponent } from './contacts/contacts.component';
@@ -18,25 +18,30 @@ import { MessageEditComponent } from './messages/message-edit/message-edit.compo
 import { DropdownDirective } from './directives/dropdown.directive';
 import { DocumentEditComponent } from './documents/document-edit/document-edit.component';
 import { ContactEditComponent } from './contacts/contact-edit/contact-edit.component';
+import { DndModule } from 'ng2-dnd';
 
 const cmsRoutes: Routes = [
   { path: '', redirectTo: 'documents', pathMatch: 'full' },
   {
-    path: 'documents', component: DocumentsComponent, children: [
+    path: 'documents',
+    component: DocumentsComponent,
+    children: [
       { path: 'new', component: DocumentEditComponent },
       { path: ':id', component: DocumentDetailComponent },
-      { path: ':id/edit', component: DocumentEditComponent }
-    ]
+      { path: ':id/edit', component: DocumentEditComponent },
+    ],
   },
   { path: 'messages', component: MessageListComponent },
   {
-    path: 'contacts', component: ContactsComponent, children: [
+    path: 'contacts',
+    component: ContactsComponent,
+    children: [
       { path: 'new', component: ContactEditComponent },
       { path: ':id', component: ContactDetailComponent },
-      { path: ':id/edit', component: ContactEditComponent }
-    ]
-  }
-]
+      { path: ':id/edit', component: ContactEditComponent },
+    ],
+  },
+];
 
 @NgModule({
   declarations: [
@@ -55,13 +60,15 @@ const cmsRoutes: Routes = [
     MessageEditComponent,
     DropdownDirective,
     DocumentEditComponent,
-    ContactEditComponent
+    ContactEditComponent,
   ],
   imports: [
     BrowserModule,
-    RouterModule.forRoot(cmsRoutes)
+    RouterModule.forRoot(cmsRoutes),
+    FormsModule,
+    DndModule.forRoot(),
   ],
   providers: [],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
-export class AppModule { }
+export class AppModule {}
