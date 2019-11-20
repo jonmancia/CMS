@@ -109,7 +109,11 @@ export class ContactEditComponent implements OnInit {
   }
 
   onRemoveItem(idx: number) {
-    if (idx < 0 || idx >= this.contactGroup.length) return;
+    if (
+      idx < 0 ||
+      (idx >= this.contactGroup.length && this.contact.group.length)
+    )
+      return;
     this.contactGroup.splice(idx, 1);
     this.contact.group.splice(idx, 1);
     this.invalidGroupContact = false;
