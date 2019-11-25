@@ -1,20 +1,25 @@
-import { Injectable, EventEmitter, Output } from '@angular/core';
-import { MOCKDOCUMENTS } from './MOCKDOCUMENTS';
-import { Document } from './document.model';
-import { Subject } from 'rxjs';
+import { Injectable, EventEmitter, Output } from "@angular/core";
+import { MOCKDOCUMENTS } from "./MOCKDOCUMENTS";
+import { Document } from "./document.model";
+import { Subject } from "rxjs";
+import { HttpClient } from "@angular/common/http";
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root"
 })
 export class DocumentService {
   private documents: Document[] = [];
   maxId: number;
   selectedDocument = new Subject<Document>();
   selectedDocuments = new Subject<Document[]>();
-  //@Output() selectedDocument = new EventEmitter<Document>();
-  //@Output() selectedDocuments = new EventEmitter<Document[]>();
-  constructor() {
-    this.documents = MOCKDOCUMENTS;
-    this.maxId = this.getMaxId();
+
+  constructor(private http: HttpClient) {
+    this.http
+      .get("https://testing-71d9d.firebaseio.com/documents.json")
+      .subscribe((documents: Document[]) => {
+        this.documents = documents;
+        this.selectedDocuments.next(this.documents);
+        this.maxId = this.getMaxId();
+      });
   }
 
   getMaxId(): number {
@@ -47,6 +52,16 @@ export class DocumentService {
     for (let i = 0; i < this.documents.length; i++) {
       if (this.documents[i].id == id) {
         this.documents.splice(i, 1);
+        let parsedDocuments = JSON.stringify(this.documents);
+        this.http
+          .put(
+            "https://testing-71d9d.firebaseio.com/documents.json",
+            parsedDocuments
+          )
+          .subscribe(data => {
+            this.selectedDocuments.next(this.documents);
+            console.log(data);
+          });
         this.selectedDocuments.next(this.documents);
         break;
       }
@@ -59,6 +74,16 @@ export class DocumentService {
     }
     document.id = (this.maxId + 1).toString();
     this.documents.push(document);
+    let parsedDocuments = JSON.stringify(this.documents);
+    this.http
+      .put(
+        "https://testing-71d9d.firebaseio.com/documents.json",
+        parsedDocuments
+      )
+      .subscribe(data => {
+        this.selectedDocuments.next(this.documents);
+        console.log(data);
+      });
     this.selectedDocuments.next(this.getDocuments());
   }
 
@@ -74,6 +99,16 @@ export class DocumentService {
 
     newDocument.id = ogDocument.id;
     this.documents[existingDocPosition] = newDocument;
+    let parsedDocuments = JSON.stringify(this.documents);
+    this.http
+      .put(
+        "https://testing-71d9d.firebaseio.com/documents.json",
+        parsedDocuments
+      )
+      .subscribe(data => {
+        this.selectedDocuments.next(this.documents);
+        console.log(data);
+      });
     this.selectedDocuments.next(this.getDocuments());
   }
 }

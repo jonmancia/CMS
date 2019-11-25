@@ -1,10 +1,10 @@
-import { Injectable, EventEmitter } from '@angular/core';
-import { Contact } from './contact.model';
-import { MOCKCONTACTS } from './MOCKCONTACTS';
-import { Subject } from 'rxjs';
+import { Injectable, EventEmitter } from "@angular/core";
+import { Contact } from "./contact.model";
+import { Subject } from "rxjs";
+import { HttpClient } from "@angular/common/http";
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: "root"
 })
 export class ContactService {
   contactSelected = new Subject<Contact>();
@@ -12,9 +12,12 @@ export class ContactService {
   contacts: Contact[] = [];
   maxId: number;
 
-  constructor() {
-    this.contacts = MOCKCONTACTS;
-    this.maxId = this.getMaxId();
+  constructor(private http: HttpClient) {
+    this.fetchContacts().subscribe((contacts: Contact[]) => {
+      this.contacts = contacts;
+      this.contactsChanged.next(this.contacts);
+      this.maxId = this.getMaxId();
+    });
   }
 
   getMaxId(): number {
@@ -27,15 +30,19 @@ export class ContactService {
     return maxId;
   }
 
+  fetchContacts() {
+    return this.http.get("https://testing-71d9d.firebaseio.com/contacts.json");
+  }
+
   getContact(id: string): Contact {
     for (let contact of this.contacts) {
-      if (contact.id === id) {
+      if (contact.id == id) {
         return contact;
       }
     }
   }
 
-  getContacts(): Contact[] {
+  getContacts(): any {
     return this.contacts.slice();
   }
 
@@ -45,7 +52,13 @@ export class ContactService {
     }
     contact.id = (this.maxId + 1).toString();
     this.contacts.push(contact);
-    this.contactsChanged.next(this.getContacts());
+    let parsedContacts = JSON.stringify(this.contacts);
+    this.http
+      .put("https://testing-71d9d.firebaseio.com/contacts.json", parsedContacts)
+      .subscribe(data => {
+        this.contactsChanged.next(this.getContacts());
+        console.log(data);
+      });
   }
 
   updateContact(ogContact: Contact, newContact: Contact) {
@@ -61,9 +74,14 @@ export class ContactService {
     }
 
     this.contacts[ogContactPos] = newContact;
-
+    let parsedContacts = JSON.stringify(this.contacts);
+    this.http
+      .put("https://testing-71d9d.firebaseio.com/contacts.json", parsedContacts)
+      .subscribe(data => {
+        this.contactsChanged.next(this.getContacts());
+        console.log(data);
+      });
     this.contactsChanged.next(this.getContacts());
-
   }
 
   deleteContact(contact: Contact) {
@@ -72,6 +90,13 @@ export class ContactService {
       return;
     }
     this.contacts.splice(pos, 1);
+    let parsedContacts = JSON.stringify(this.contacts);
+    this.http
+      .put("https://testing-71d9d.firebaseio.com/contacts.json", parsedContacts)
+      .subscribe(data => {
+        this.contactsChanged.next(this.getContacts());
+        console.log(data);
+      });
     this.contactsChanged.next(this.contacts);
   }
 }
