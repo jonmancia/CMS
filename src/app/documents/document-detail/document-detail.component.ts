@@ -7,23 +7,27 @@ import { WinRefService } from '../../win-ref.service';
 @Component({
   selector: 'cms-document-detail',
   templateUrl: './document-detail.component.html',
-  styleUrls: ['./document-detail.component.css']
+  styleUrls: ['./document-detail.component.css'],
 })
 export class DocumentDetailComponent implements OnInit {
   @Input() document: Document;
   nativeWindow: any;
-  constructor(private documentService: DocumentService,
+  constructor(
+    private documentService: DocumentService,
     private route: ActivatedRoute,
     private router: Router,
-    private windowRefService: WinRefService) {
+    private windowRefService: WinRefService
+  ) {
     this.nativeWindow = windowRefService.getNativeWindow();
   }
 
   ngOnInit() {
-    this.route.paramMap.subscribe((result) => {
-      this.document = this.documentService.getDocument(result.get('id'))
-    }
-    )
+    this.route.paramMap.subscribe(result => {
+      this.documentService.selectedDocuments.subscribe(() => {
+        this.document = this.documentService.getDocument(result.get('id'));
+      });
+      this.document = this.documentService.getDocument(result.get('id'));
+    });
   }
 
   onView() {
@@ -38,5 +42,4 @@ export class DocumentDetailComponent implements OnInit {
     // route to /documents
     this.router.navigate(['/documents']);
   }
-
 }

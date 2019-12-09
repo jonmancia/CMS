@@ -25,11 +25,11 @@ export class DocumentEditComponent implements OnInit {
   constructor(
     private documentService: DocumentService,
     private activeRoute: ActivatedRoute,
-    private router: Router,
+    private router: Router
   ) {}
 
   ngOnInit() {
-    this.activeRoute.params.subscribe((params) => {
+    this.activeRoute.params.subscribe(params => {
       if (params.id) {
         // we'll get the document based on the id
         this.originalDocument = this.documentService.getDocument(params.id);
@@ -39,6 +39,7 @@ export class DocumentEditComponent implements OnInit {
         this.documentForm.url = this.originalDocument.url;
       }
     });
+    // this.documentService.documentsChanged();
   }
 
   onSubmit() {
@@ -52,7 +53,7 @@ export class DocumentEditComponent implements OnInit {
       if (this.originalDocument) {
         this.documentService.updateDocument(
           this.originalDocument,
-          this.newDocument,
+          this.newDocument
         );
         this.router.navigate(['/documents']);
         return;

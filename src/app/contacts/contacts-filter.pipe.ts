@@ -9,10 +9,12 @@ export class ContactsFilterPipe implements PipeTransform {
     // create array to add new contacts
     let filteredContacts: Contact[] = [];
     // Loop through list of contacts
-    for (const contact of contacts) {
-      if (contact.name.toLowerCase().includes(term)) {
-        filteredContacts.push(contact);
-        console.log(term);
+    if (term.length) {
+      for (const contact of contacts) {
+        if (contact.name.toLowerCase().includes(term)) {
+          filteredContacts.push(contact);
+          console.log(term);
+        }
       }
     }
 

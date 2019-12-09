@@ -1,30 +1,35 @@
-import { Component, OnInit, Input } from '@angular/core';
-import { Contact } from '../contact.model';
-import { ContactService } from '../contact.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component, OnInit, Input } from "@angular/core";
+import { Contact } from "../contact.model";
+import { ContactService } from "../contact.service";
+import { ActivatedRoute, Router } from "@angular/router";
 
 @Component({
-  selector: 'cms-contact-detail',
-  templateUrl: './contact-detail.component.html',
-  styleUrls: ['./contact-detail.component.css']
+  selector: "cms-contact-detail",
+  templateUrl: "./contact-detail.component.html",
+  styleUrls: ["./contact-detail.component.css"]
 })
 export class ContactDetailComponent implements OnInit {
-  @Input() contact: Contact;
+  contact: Contact;
   constructor(
     private contactService: ContactService,
     private route: ActivatedRoute,
-    private router: Router) {
-
-  }
+    private router: Router
+  ) {}
 
   ngOnInit() {
-    // Subscribe to any changes to id in route and assign contact to local contact
-    this.route.paramMap.subscribe((params) => this.contact = this.contactService.getContact(params.get('id')))
+    this.route.params.subscribe(params => {
+      this.contactService.contactsChanged.subscribe(() => {
+        this.contactService.getContact(params["id"]).then(data => {
+          this.contact = data;
+        });
+      });
+      this.contactService.getContact(params["id"]).then(data => {
+        this.contact = data;
+      });
+    });
   }
-
   onContactDelete() {
     this.contactService.deleteContact(this.contact);
-    this.router.navigate(['/contacts']);
+    this.router.navigate(["/contacts"]);
   }
-
 }

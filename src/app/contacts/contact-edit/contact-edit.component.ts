@@ -3,7 +3,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ContactService } from '../contact.service';
 import { NgForm } from '@angular/forms';
 import { Contact } from '../contact.model';
-
 @Component({
   selector: 'cms-contact-edit',
   templateUrl: './contact-edit.component.html',
@@ -28,23 +27,26 @@ export class ContactEditComponent implements OnInit {
   constructor(
     private activeRoute: ActivatedRoute,
     private contactService: ContactService,
-    private router: Router,
+    private router: Router
   ) {}
 
   ngOnInit() {
-    this.activeRoute.params.subscribe((params) => {
-      this.originalContact = this.contactService.getContact(params.id);
-      this.contact.id = this.originalContact.id;
-      this.contact.name = this.originalContact.name;
-      this.contact.email = this.originalContact.email;
-      this.contact.phone = this.originalContact.phone;
-      this.contact.imageUrl = this.originalContact.imageUrl;
+    this.activeRoute.params.subscribe(params => {
+      this.contactService.getContact(params.id).then(data => {
+        this.originalContact = data;
+        console.log(data);
+        this.contact.id = this.originalContact.id;
+        this.contact.name = this.originalContact.name;
+        this.contact.email = this.originalContact.email;
+        this.contact.phone = this.originalContact.phone;
+        this.contact.imageUrl = this.originalContact.imageUrl;
 
-      if (this.originalContact.group != null) {
-        this.contact.group = JSON.parse(
-          JSON.stringify(this.originalContact.group),
-        );
-      }
+        if (this.originalContact.group != null) {
+          this.contact.group = JSON.parse(
+            JSON.stringify(this.originalContact.group)
+          );
+        }
+      });
     });
   }
 
@@ -60,7 +62,7 @@ export class ContactEditComponent implements OnInit {
       if (this.originalContact) {
         this.contactService.updateContact(
           this.originalContact,
-          this.newContact,
+          this.newContact
         );
         this.router.navigate(['/contacts']);
         return;
@@ -112,8 +114,9 @@ export class ContactEditComponent implements OnInit {
     if (
       idx < 0 ||
       (idx >= this.contactGroup.length && this.contact.group.length)
-    )
+    ) {
       return;
+    }
     this.contactGroup.splice(idx, 1);
     this.contact.group.splice(idx, 1);
     this.invalidGroupContact = false;

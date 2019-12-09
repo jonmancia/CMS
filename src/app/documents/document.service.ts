@@ -1,25 +1,23 @@
-import { Injectable, EventEmitter, Output } from "@angular/core";
-import { MOCKDOCUMENTS } from "./MOCKDOCUMENTS";
-import { Document } from "./document.model";
-import { Subject } from "rxjs";
-import { HttpClient } from "@angular/common/http";
+import { Injectable, EventEmitter, Output } from '@angular/core';
+import { MOCKDOCUMENTS } from './MOCKDOCUMENTS';
+import { Document } from './document.model';
+import { Subject } from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 @Injectable({
-  providedIn: "root"
+  providedIn: 'root',
 })
 export class DocumentService {
   private documents: Document[] = [];
   maxId: number;
   selectedDocument = new Subject<Document>();
   selectedDocuments = new Subject<Document[]>();
-
+  url = 'http://localhost:3000/api/documents';
   constructor(private http: HttpClient) {
-    this.http
-      .get("https://testing-71d9d.firebaseio.com/documents.json")
-      .subscribe((documents: Document[]) => {
-        this.documents = documents;
-        this.selectedDocuments.next(this.documents);
-        this.maxId = this.getMaxId();
-      });
+    this.http.get(this.url).subscribe((documents: Document[]) => {
+      this.documents = documents;
+      this.selectedDocuments.next(this.documents);
+      this.maxId = this.getMaxId();
+    });
   }
 
   getMaxId(): number {
@@ -41,8 +39,8 @@ export class DocumentService {
   }
 
   getDocument(id: string): Document {
-    for (let document of this.documents) {
-      if (document.id == id) {
+    for (const document of this.documents) {
+      if (document.id === id) {
         return document;
       }
     }
@@ -50,19 +48,18 @@ export class DocumentService {
 
   deleteDocument(id: string) {
     for (let i = 0; i < this.documents.length; i++) {
-      if (this.documents[i].id == id) {
+      if (this.documents[i].id === id) {
         this.documents.splice(i, 1);
         let parsedDocuments = JSON.stringify(this.documents);
         this.http
-          .put(
-            "https://testing-71d9d.firebaseio.com/documents.json",
-            parsedDocuments
-          )
-          .subscribe(data => {
+          .delete(`${this.url}/${id}`, {
+            headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+          })
+          .subscribe((data: Document[]) => {
+            this.documents = data;
             this.selectedDocuments.next(this.documents);
             console.log(data);
           });
-        this.selectedDocuments.next(this.documents);
         break;
       }
     }
@@ -74,15 +71,13 @@ export class DocumentService {
     }
     document.id = (this.maxId + 1).toString();
     this.documents.push(document);
-    let parsedDocuments = JSON.stringify(this.documents);
+    const parsedDocument = JSON.stringify(document);
     this.http
-      .put(
-        "https://testing-71d9d.firebaseio.com/documents.json",
-        parsedDocuments
-      )
+      .post(this.url, parsedDocument, {
+        headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+      })
       .subscribe(data => {
         this.selectedDocuments.next(this.documents);
-        console.log(data);
       });
     this.selectedDocuments.next(this.getDocuments());
   }
@@ -91,7 +86,7 @@ export class DocumentService {
     if (!ogDocument || !newDocument) {
       return;
     }
-    let existingDocPosition = this.documents.indexOf(ogDocument);
+    const existingDocPosition = this.documents.indexOf(ogDocument);
 
     if (existingDocPosition < 0) {
       return;
@@ -99,15 +94,14 @@ export class DocumentService {
 
     newDocument.id = ogDocument.id;
     this.documents[existingDocPosition] = newDocument;
-    let parsedDocuments = JSON.stringify(this.documents);
+    const parsedDocument = JSON.stringify(newDocument);
     this.http
-      .put(
-        "https://testing-71d9d.firebaseio.com/documents.json",
-        parsedDocuments
-      )
-      .subscribe(data => {
+      .put(`${this.url}/${newDocument.id}`, parsedDocument, {
+        headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+      })
+      .subscribe((data: Document[]) => {
+        this.documents = data;
         this.selectedDocuments.next(this.documents);
-        console.log(data);
       });
     this.selectedDocuments.next(this.getDocuments());
   }

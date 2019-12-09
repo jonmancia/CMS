@@ -1,10 +1,11 @@
-import { Injectable, EventEmitter } from "@angular/core";
-import { Contact } from "./contact.model";
-import { Subject } from "rxjs";
-import { HttpClient } from "@angular/common/http";
+import { Injectable, EventEmitter } from '@angular/core';
+import { Contact } from './contact.model';
+import { Subject } from 'rxjs';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { ActivatedRoute } from '@angular/router';
 
 @Injectable({
-  providedIn: "root"
+  providedIn: 'root',
 })
 export class ContactService {
   contactSelected = new Subject<Contact>();
@@ -12,7 +13,7 @@ export class ContactService {
   contacts: Contact[] = [];
   maxId: number;
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, route: ActivatedRoute) {
     this.fetchContacts().subscribe((contacts: Contact[]) => {
       this.contacts = contacts;
       this.contactsChanged.next(this.contacts);
@@ -22,7 +23,7 @@ export class ContactService {
 
   getMaxId(): number {
     let maxId = 0;
-    for (let contact of this.contacts) {
+    for (const contact of this.contacts) {
       if (parseInt(contact.id) > maxId) {
         maxId = parseInt(contact.id);
       }
@@ -31,12 +32,12 @@ export class ContactService {
   }
 
   fetchContacts() {
-    return this.http.get("https://testing-71d9d.firebaseio.com/contacts.json");
+    return this.http.get('http://localhost:3000/api/contacts');
   }
 
-  getContact(id: string): Contact {
-    for (let contact of this.contacts) {
-      if (contact.id == id) {
+  async getContact(id: string): Promise<any> {
+    for (const contact of this.contacts) {
+      if (contact.id === id) {
         return contact;
       }
     }
@@ -52,12 +53,13 @@ export class ContactService {
     }
     contact.id = (this.maxId + 1).toString();
     this.contacts.push(contact);
-    let parsedContacts = JSON.stringify(this.contacts);
+    let parsedContact = JSON.stringify(this.contacts[this.contacts.length - 1]);
     this.http
-      .put("https://testing-71d9d.firebaseio.com/contacts.json", parsedContacts)
+      .post('http://localhost:3000/api/contacts', parsedContact, {
+        headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+      })
       .subscribe(data => {
         this.contactsChanged.next(this.getContacts());
-        console.log(data);
       });
   }
 
@@ -72,14 +74,19 @@ export class ContactService {
     if (ogContactPos < 0) {
       return;
     }
-
     this.contacts[ogContactPos] = newContact;
-    let parsedContacts = JSON.stringify(this.contacts);
+    let parsedContact = JSON.stringify(this.contacts[ogContactPos]);
+    console.log(parsedContact);
     this.http
-      .put("https://testing-71d9d.firebaseio.com/contacts.json", parsedContacts)
+      .put(
+        `http://localhost:3000/api/contacts/${newContact.id}`,
+        parsedContact,
+        {
+          headers: new HttpHeaders({ 'Content-Type': 'application/json' }),
+        }
+      )
       .subscribe(data => {
         this.contactsChanged.next(this.getContacts());
-        console.log(data);
       });
     this.contactsChanged.next(this.getContacts());
   }
@@ -89,13 +96,14 @@ export class ContactService {
     if (pos < 0) {
       return;
     }
+    const url = `http://localhost:3000/api/contacts/${contact.id}`;
     this.contacts.splice(pos, 1);
-    let parsedContacts = JSON.stringify(this.contacts);
     this.http
-      .put("https://testing-71d9d.firebaseio.com/contacts.json", parsedContacts)
+      .delete(url, {
+        responseType: 'json',
+      })
       .subscribe(data => {
         this.contactsChanged.next(this.getContacts());
-        console.log(data);
       });
     this.contactsChanged.next(this.contacts);
   }
